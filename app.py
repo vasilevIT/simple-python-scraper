@@ -12,7 +12,6 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import os
 
-
 class App:
 
     def __init__(self) -> None:
@@ -23,39 +22,47 @@ class App:
         while True:
             # Специфичная логика вашего приложения
             time.sleep(5)
-            logger.info("some info")
+            logger.info("Parsing")
             self.iteration()
+
+    def stop(self):
+        logger.info("Daemon stop")
+
+    def get_text(self, url):
+        r = requests.get(url)
+        return r.text
 
     def iteration(self):
         page_container_class = '.bx-pagination-container ul li:nth-last-child(2) a span'
 
         url = 'https://www.mirea.ru/news/'  # url
         page_pattern = "?PAGEN_1=%s"
-        r = requests.get(url)
-        with open('test.html', 'w') as output_file:
-            results = [self.read_db()]
-            output_file.write(r.text)
+        text = self.get_text(url)
+        results = [self.read_db()]
+        with open('/Users/antonvasilev/PyCharmProjects/bsbo__09_and_10__17/test.html', 'w') as output_file:
+            output_file.write(text)
 
-            soup = BeautifulSoup(r.text, 'lxml')
+            soup = BeautifulSoup(text, 'lxml')
 
-            page_count = 2  # int(soup.select_one(page_container_class).text)
-            print('page_count', page_count)
+            page_count = 1  # int(soup.select_one(page_container_class).text)
+            logger.info('page_count %d' % page_count)
             for i in range(page_count):
-                r = requests.get(url + page_pattern % (i + 1))
-                html = r.text
-                print('Parsing %d page' % (i + 1))
+                html = self.get_text(url + page_pattern % (i + 1))
+                logger.info('Parsing     %d page' % (i + 1))
                 page_results = self.parse_one_page(html)
                 if len(page_results):
                     results.append(pd.DataFrame(page_results))
-        if len(results):
+        if len(results) > 1:
             df = pd.concat(results, ignore_index=True)
-            df.to_csv('results.csv', index=None)
+            logger.info('Save to file %d results' % df.count()[0])
+            df.to_csv('/Users/antonvasilev/PyCharmProjects/bsbo__09_and_10__17/results.csv', index=None)
         else:
-            print('Empty results')
+            logger.info('Empty results')
 
     def read_db(self):
-        if self.df.empty and os.path.isfile('results.csv'):
-            self.df = pd.read_csv('results.csv', index_col=None)
+        filepath = '/Users/antonvasilev/PyCharmProjects/bsbo__09_and_10__17/results.csv'
+        if self.df.empty and os.path.isfile(filepath):
+            self.df = pd.read_csv(filepath, index_col=None)
 
         return self.df
 

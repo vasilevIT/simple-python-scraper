@@ -16,10 +16,10 @@ class MyDaemon(Daemon):
     def __init__(self, pidfile, stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
         super().__init__(pidfile, stdin='/dev/null', stdout='/dev/null', stderr='/dev/null')
         # Инициализация класса по работе с БД
+        self.application = App()
 
     def run(self):
         # Запуск парсинга
-        self.application = App()
         self.application.start()
 
 
