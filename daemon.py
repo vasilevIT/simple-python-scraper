@@ -9,9 +9,12 @@ import sys, os, time, atexit
 from signal import SIGTERM
 import logging.handlers
 
+pid_file = '/tmp/python-bsbo__09_and_10__17_daemon.pid'
+log_file = '/tmp/python-bsbo__09_and_10__17_daemon.log'
+
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
-filehandler = logging.handlers.TimedRotatingFileHandler('/tmp/python-bsbo__09_and_10__17_daemon.log', when='midnight', interval=1,
+filehandler = logging.handlers.TimedRotatingFileHandler(log_file, when='midnight', interval=1,
                                                         backupCount=10)
 filehandler.setFormatter(logging.Formatter(fmt='%(asctime)s %(levelname)s %(message)s', datefmt='%Y-%m-%d %H:%M:%S'))
 logger.addHandler(filehandler)
