@@ -11,12 +11,21 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 import os
+import sqlite3
+
 
 class App:
 
     def __init__(self) -> None:
         super().__init__()
         self.df = pd.DataFrame()
+        self.connect = sqlite3.connect('sqlite.db')
+        self.table_name = 'news'
+
+        c = self.connect.cursor()
+        c.execute('''CREATE TABLE if not exists ''' + self.table_name + '''
+             (time time, name  varchar(255), date  varchar(255), href  varchar(255), image varchar(255))''')
+        self.connect.commit()
 
     def start(self):
         while True:
@@ -91,10 +100,22 @@ class App:
             return None
         title = news_item.find('a', {'class': 'uk-link-reset'}).text.strip()
         image = news_item.find('img').get('src')
-        time = news_item.find('div', {'class': 'uk-h6'}).text.strip()
+        date = news_item.find('div', {'class': 'uk-h6'}).text.strip()
+
+        c = self.connect.cursor()
+        c.execute('''
+                INSERT INTO ''' + self.table_name + ''' VALUES (?,?,?,?,?)
+                ''', [
+            time.time(),
+            title,
+            date,
+            href,
+            image
+        ])
+        self.connect.commit()
         return {
             'title': title,
             'href': href,
-            'time': time,
+            'time': date,
             'image': image,
         }
