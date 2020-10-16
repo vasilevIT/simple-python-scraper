@@ -5,5 +5,13 @@
   Time: 21:34
  """
 
+import time
+from daemon import logger
+
+
 class App:
-    pass
+    def start(self):
+        while True:
+            # Специфичная логика вашего приложения
+            time.sleep(5)
+            logger.info("some info")
