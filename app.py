@@ -46,10 +46,8 @@ class App:
                 print('Parsing %d page' % (i + 1))
                 page_results = self.parse_one_page(html)
                 if len(page_results):
-                    print('page_results', page_results)
                     results.append(pd.DataFrame(page_results))
         if len(results):
-            print('results', results)
             df = pd.concat(results, ignore_index=True)
             df.to_csv('results.csv', index=None)
         else:
